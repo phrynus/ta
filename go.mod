@@ -1,4 +1,4 @@
-module git.phrynus.com/admin/ta
+module github.com/phrynus/ta
 
 go 1.24.2
 
