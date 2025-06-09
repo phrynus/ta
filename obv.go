@@ -95,11 +95,11 @@ func CalculateOBV(prices, volumes []float64) (*TaOBV, error) {
 //	    return err
 //	}
 func (k *KlineDatas) OBV(source string) (*TaOBV, error) {
-	close, err := k._ExtractSlice("close")
+	close, err := k.ExtractSlice("close")
 	if err != nil {
 		return nil, err
 	}
-	volume, err := k._ExtractSlice("volume")
+	volume, err := k.ExtractSlice("volume")
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (k *KlineDatas) OBV(source string) (*TaOBV, error) {
 //	value := kline.OBV_("close")
 func (k *KlineDatas) OBV_(source string) float64 {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(50) // 保留足够的数据用于趋势判断
+	_k, err := k.Keep(50) // 保留足够的数据用于趋势判断
 	if err != nil {
 		_k = *k
 	}

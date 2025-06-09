@@ -96,7 +96,7 @@ func CalculateRSI(prices []float64, period int) (*TaRSI, error) {
 //
 //	rsi, err := k.RSI(14, "close")
 func (k *KlineDatas) RSI(period int, source string) (*TaRSI, error) {
-	prices, err := k._ExtractSlice(source)
+	prices, err := k.ExtractSlice(source)
 	if err != nil {
 		return nil, err
 	}
@@ -115,11 +115,11 @@ func (k *KlineDatas) RSI(period int, source string) (*TaRSI, error) {
 //
 //	value := k.RSI_(14, "close")
 func (k *KlineDatas) RSI_(period int, source string) float64 {
-	_k, err := k._Keep(period * 14)
+	_k, err := k.Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}
-	prices, err := _k._ExtractSlice(source)
+	prices, err := _k.ExtractSlice(source)
 	if err != nil {
 		return 0
 	}

@@ -349,7 +349,7 @@ func NewKlineDatas(klines interface{}, l bool) (KlineDatas, error) {
 	return klineDataList, nil
 }
 
-// _ExtractSlice 从K线数据集合中提取指定类型的价格序列 (Extract Price Series)
+// ExtractSlice 从K线数据集合中提取指定类型的价格序列 (Extract Price Series)
 // 参数：
 //   - priceType: 价格类型（"open"/"high"/"low"/"close"/"volume"）
 //
@@ -364,8 +364,8 @@ func NewKlineDatas(klines interface{}, l bool) (KlineDatas, error) {
 //
 // 示例：
 //
-//	prices, err := klines._ExtractSlice("close")
-func (k *KlineDatas) _ExtractSlice(priceType string) ([]float64, error) {
+//	prices, err := klines.ExtractSlice("close")
+func (k *KlineDatas) ExtractSlice(priceType string) ([]float64, error) {
 	var prices []float64
 	for _, kline := range *k {
 		switch priceType {
@@ -399,7 +399,7 @@ func (k *KlineDatas) _ExtractSlice(priceType string) ([]float64, error) {
 // 示例：
 //
 //	err := klines._Add(newKline)
-func (k *KlineDatas) _Add(wsKline interface{}) error {
+func (k *KlineDatas) Add(wsKline interface{}) error {
 	v := reflect.ValueOf(wsKline)
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
@@ -459,7 +459,7 @@ func (k *KlineDatas) _Add(wsKline interface{}) error {
 // 示例：
 //
 //	err := klines._Remove(10)
-func (k *KlineDatas) _Remove(n int) error {
+func (k *KlineDatas) Remove(n int) error {
 	if n <= 0 {
 		return fmt.Errorf("删除数量必须大于0")
 	}
@@ -473,7 +473,7 @@ func (k *KlineDatas) _Remove(n int) error {
 	return nil
 }
 
-// _Keep 保留指定数量的最新K线数据 (Keep Latest Kline Data)
+// Keep 保留指定数量的最新K线数据 (Keep Latest Kline Data)
 // 参数：
 //   - n: 需要保留的数据数量
 //
@@ -488,8 +488,8 @@ func (k *KlineDatas) _Remove(n int) error {
 //
 // 示例：
 //
-//	kept, err := klines._Keep(100)
-func (k *KlineDatas) _Keep(n int) (KlineDatas, error) {
+//	kept, err := klines.Keep(100)
+func (k *KlineDatas) Keep(n int) (KlineDatas, error) {
 	if n <= 0 {
 		return nil, fmt.Errorf("保留数量必须大于0")
 	}
@@ -504,7 +504,7 @@ func (k *KlineDatas) _Keep(n int) (KlineDatas, error) {
 	return newK, nil
 }
 
-// _Keep_ 保留指定数量的最新K线数据（原地修改） (Keep Latest Kline Data In-Place)
+// Keep_ 保留指定数量的最新K线数据（原地修改） (Keep Latest Kline Data In-Place)
 // 参数：
 //   - n: 需要保留的数据数量
 //
@@ -518,8 +518,8 @@ func (k *KlineDatas) _Keep(n int) (KlineDatas, error) {
 //
 // 示例：
 //
-//	err := klines._Keep_(100)
-func (k *KlineDatas) _Keep_(n int) error {
+//	err := klines.Keep_(100)
+func (k *KlineDatas) Keep_(n int) error {
 	if n <= 0 {
 		return fmt.Errorf("保留数量必须大于0")
 	}
@@ -532,7 +532,7 @@ func (k *KlineDatas) _Keep_(n int) error {
 	return nil
 }
 
-// _GetLast 获取最后一个K线数据的指定价格 (Get Last Price)
+// GetLast 获取最后一个K线数据的指定价格 (Get Last Price)
 // 参数：
 //   - source: 价格类型（"open"/"high"/"low"/"close"/"volume"）
 //
@@ -542,12 +542,12 @@ func (k *KlineDatas) _Keep_(n int) error {
 // 说明：
 //
 //	获取集合中最后一个K线数据的指定类型价格
-//	如果集合为空或价格类型无效，返回0
+//	如果集合为空或价格类型无效，返回-1
 //
 // 示例：
 //
-//	lastClose := klines._GetLast("close")
-func (k *KlineDatas) _GetLast(source string) float64 {
+//	lastClose := klines.GetLast("close")
+func (k *KlineDatas) GetLast(source string) float64 {
 	if len(*k) == 0 {
 		return -1
 	}

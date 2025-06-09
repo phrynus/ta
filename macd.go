@@ -109,7 +109,7 @@ func CalculateMACD(prices []float64, shortPeriod, longPeriod, signalPeriod int) 
 //
 //	macd, err := kline.MACD("close", 12, 26, 9)
 func (k *KlineDatas) MACD(source string, shortPeriod, longPeriod, signalPeriod int) (*TaMacd, error) {
-	prices, err := k._ExtractSlice(source)
+	prices, err := k.ExtractSlice(source)
 	if err != nil {
 		return nil, err
 	}
@@ -132,11 +132,11 @@ func (k *KlineDatas) MACD(source string, shortPeriod, longPeriod, signalPeriod i
 //
 //	macd, dif, dea := kline.MACD_("close", 12, 26, 9)
 func (k *KlineDatas) MACD_(source string, shortPeriod, longPeriod, signalPeriod int) (macd, dif, dea float64) {
-	_k, err := k._Keep((longPeriod + signalPeriod) * 2)
+	_k, err := k.Keep((longPeriod + signalPeriod) * 2)
 	if err != nil {
 		_k = *k
 	}
-	prices, err := _k._ExtractSlice(source)
+	prices, err := _k.ExtractSlice(source)
 	if err != nil {
 		return 0, 0, 0
 	}

@@ -119,19 +119,19 @@ func CalculateCMF(high, low, close, volume []float64, period int) (*TaCMF, error
 //	    return err
 //	}
 func (k *KlineDatas) CMF(period int, source string) (*TaCMF, error) {
-	high, err := k._ExtractSlice("high")
+	high, err := k.ExtractSlice("high")
 	if err != nil {
 		return nil, err
 	}
-	low, err := k._ExtractSlice("low")
+	low, err := k.ExtractSlice("low")
 	if err != nil {
 		return nil, err
 	}
-	close, err := k._ExtractSlice("close")
+	close, err := k.ExtractSlice("close")
 	if err != nil {
 		return nil, err
 	}
-	volume, err := k._ExtractSlice("volume")
+	volume, err := k.ExtractSlice("volume")
 	if err != nil {
 		return nil, err
 	}
@@ -248,7 +248,7 @@ func (t *TaCMF) IsBearishDivergence(prices []float64) bool {
 //	value := kline.CMF_(20, "close")
 func (k *KlineDatas) CMF_(period int, source string) float64 {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(period * 14)
+	_k, err := k.Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}

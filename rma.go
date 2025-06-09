@@ -92,7 +92,7 @@ func CalculateRMA(prices []float64, period int) (*TaRMA, error) {
 //	    return err
 //	}
 func (k *KlineDatas) RMA(period int, source string) (*TaRMA, error) {
-	prices, err := k._ExtractSlice(source)
+	prices, err := k.ExtractSlice(source)
 	if err != nil {
 		return nil, err
 	}
@@ -111,11 +111,11 @@ func (k *KlineDatas) RMA(period int, source string) (*TaRMA, error) {
 //
 //	value := kline.RMA_(14, "close")
 func (k *KlineDatas) RMA_(period int, source string) float64 {
-	_k, err := k._Keep(period * 14)
+	_k, err := k.Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}
-	prices, err := _k._ExtractSlice(source)
+	prices, err := _k.ExtractSlice(source)
 	if err != nil {
 		return 0
 	}

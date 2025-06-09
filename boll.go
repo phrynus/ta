@@ -100,7 +100,7 @@ func CalculateBoll(prices []float64, period int, stdDev float64) (*TaBoll, error
 //
 //	boll, err := k.Boll(20, 2, "close")
 func (k *KlineDatas) Boll(period int, stdDev float64, source string) (*TaBoll, error) {
-	prices, err := k._ExtractSlice(source)
+	prices, err := k.ExtractSlice(source)
 	if err != nil {
 		return nil, err
 	}
@@ -123,11 +123,11 @@ func (k *KlineDatas) Boll(period int, stdDev float64, source string) (*TaBoll, e
 //	upper, mid, lower := k.Boll_(20, 2, "close")
 func (k *KlineDatas) Boll_(period int, stdDev float64, source string) (upper, mid, lower float64) {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(period * 14)
+	_k, err := k.Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}
-	prices, err := _k._ExtractSlice(source)
+	prices, err := _k.ExtractSlice(source)
 	if err != nil {
 		return 0, 0, 0
 	}

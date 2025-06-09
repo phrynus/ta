@@ -79,7 +79,7 @@ func CalculateEMA(prices []float64, period int) (*TaEMA, error) {
 //
 //	ema, err := k.EMA(20, "close")
 func (k *KlineDatas) EMA(period int, source string) (*TaEMA, error) {
-	prices, err := k._ExtractSlice(source)
+	prices, err := k.ExtractSlice(source)
 	if err != nil {
 		return nil, err
 	}
@@ -99,11 +99,11 @@ func (k *KlineDatas) EMA(period int, source string) (*TaEMA, error) {
 //	value := k.EMA_(20, "close")
 func (k *KlineDatas) EMA_(period int, source string) float64 {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(period * 14)
+	_k, err := k.Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}
-	prices, err := _k._ExtractSlice(source)
+	prices, err := _k.ExtractSlice(source)
 	if err != nil {
 		return 0
 	}

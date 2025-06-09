@@ -98,15 +98,15 @@ func CalculateWilliamsR(high, low, close []float64, period int) (*TaWilliamsR, e
 //	    return err
 //	}
 func (k *KlineDatas) WilliamsR(period int) (*TaWilliamsR, error) {
-	high, err := k._ExtractSlice("high")
+	high, err := k.ExtractSlice("high")
 	if err != nil {
 		return nil, err
 	}
-	low, err := k._ExtractSlice("low")
+	low, err := k.ExtractSlice("low")
 	if err != nil {
 		return nil, err
 	}
-	close, err := k._ExtractSlice("close")
+	close, err := k.ExtractSlice("close")
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (k *KlineDatas) WilliamsR(period int) (*TaWilliamsR, error) {
 //	wrValue := kline.WilliamsR_(14)
 func (k *KlineDatas) WilliamsR_(period int) float64 {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(period * 14)
+	_k, err := k.Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}

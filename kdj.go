@@ -108,15 +108,15 @@ func CalculateKDJ(high, low, close []float64, rsvPeriod, kPeriod, dPeriod int) (
 //
 //	kdj, err := k.KDJ(9, 3, 3)
 func (k *KlineDatas) KDJ(rsvPeriod, kPeriod, dPeriod int) (*TaKDJ, error) {
-	high, err := k._ExtractSlice("high")
+	high, err := k.ExtractSlice("high")
 	if err != nil {
 		return nil, err
 	}
-	low, err := k._ExtractSlice("low")
+	low, err := k.ExtractSlice("low")
 	if err != nil {
 		return nil, err
 	}
-	close, err := k._ExtractSlice("close")
+	close, err := k.ExtractSlice("close")
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (k *KlineDatas) KDJ(rsvPeriod, kPeriod, dPeriod int) (*TaKDJ, error) {
 //	k, d, j := k.KDJ_(9, 3, 3)
 func (k *KlineDatas) KDJ_(rsvPeriod, kPeriod, dPeriod int) (kValue, dValue, jValue float64) {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(rsvPeriod * 2)
+	_k, err := k.Keep(rsvPeriod * 2)
 	if err != nil {
 		_k = *k
 	}

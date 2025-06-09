@@ -163,7 +163,7 @@ func CalculateStochRSI(prices []float64, rsiPeriod, stochPeriod, kPeriod, dPerio
 //	    // 执行卖出逻辑
 //	}
 func (k *KlineDatas) StochRSI(rsiPeriod, stochPeriod, kPeriod, dPeriod int, source string) (*TaStochRSI, error) {
-	prices, err := k._ExtractSlice(source)
+	prices, err := k.ExtractSlice(source)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func (k *KlineDatas) StochRSI(rsiPeriod, stochPeriod, kPeriod, dPeriod int, sour
 //
 //	k, d := kline.StochRSI_(14, 14, 3, 3, "close")
 func (k *KlineDatas) StochRSI_(rsiPeriod, stochPeriod, kPeriod, dPeriod int, source string) (kValue, dValue float64) {
-	_k, err := k._Keep((rsiPeriod + stochPeriod) * 2)
+	_k, err := k.Keep((rsiPeriod + stochPeriod) * 2)
 	if err != nil {
 		_k = *k
 	}

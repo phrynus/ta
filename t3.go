@@ -121,7 +121,7 @@ func CalculateT3(prices []float64, period int, vfact float64) (*TaT3, error) {
 //	    return err
 //	}
 func (k *KlineDatas) T3(period int, vfact float64, source string) (*TaT3, error) {
-	prices, err := k._ExtractSlice(source)
+	prices, err := k.ExtractSlice(source)
 	if err != nil {
 		return nil, err
 	}
@@ -141,11 +141,11 @@ func (k *KlineDatas) T3(period int, vfact float64, source string) (*TaT3, error)
 //
 //	value := kline.T3_(10, 0.7, "close")
 func (k *KlineDatas) T3_(period int, vfact float64, source string) float64 {
-	_k, err := k._Keep(period * 10)
+	_k, err := k.Keep(period * 10)
 	if err != nil {
 		_k = *k
 	}
-	prices, err := _k._ExtractSlice(source)
+	prices, err := _k.ExtractSlice(source)
 	if err != nil {
 		return 0
 	}

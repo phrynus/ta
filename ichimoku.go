@@ -167,11 +167,11 @@ func CalculateIchimoku(high, low []float64, tenkanPeriod, kijunPeriod, senkouBPe
 //	    return err
 //	}
 func (k *KlineDatas) Ichimoku(tenkanPeriod, kijunPeriod, senkouBPeriod int) (*TaIchimoku, error) {
-	high, err := k._ExtractSlice("high")
+	high, err := k.ExtractSlice("high")
 	if err != nil {
 		return nil, err
 	}
-	low, err := k._ExtractSlice("low")
+	low, err := k.ExtractSlice("low")
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (k *KlineDatas) Ichimoku(tenkanPeriod, kijunPeriod, senkouBPeriod int) (*Ta
 //	tenkan, kijun, senkouA, senkouB, chikou := kline.Ichimoku_(9, 26, 52)
 func (k *KlineDatas) Ichimoku_(tenkanPeriod, kijunPeriod, senkouBPeriod int) (tenkan, kijun, senkouA, senkouB, chikou float64) {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(senkouBPeriod * 2)
+	_k, err := k.Keep(senkouBPeriod * 2)
 	if err != nil {
 		_k = *k
 	}

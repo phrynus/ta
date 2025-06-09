@@ -76,7 +76,7 @@ func CalculateSMA(prices []float64, period int) (*TaSMA, error) {
 //
 //	sma, err := k.SMA(20, "close")
 func (k *KlineDatas) SMA(period int, source string) (*TaSMA, error) {
-	prices, err := k._ExtractSlice(source)
+	prices, err := k.ExtractSlice(source)
 	if err != nil {
 		return nil, err
 	}
@@ -95,11 +95,11 @@ func (k *KlineDatas) SMA(period int, source string) (*TaSMA, error) {
 //
 //	value := k.SMA_(20, "close")
 func (k *KlineDatas) SMA_(period int, source string) float64 {
-	_k, err := k._Keep(period * 14)
+	_k, err := k.Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}
-	prices, err := _k._ExtractSlice(source)
+	prices, err := _k.ExtractSlice(source)
 	if err != nil {
 		return 0
 	}

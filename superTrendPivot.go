@@ -249,7 +249,7 @@ func (k *KlineDatas) SuperTrendPivot(pivotPeriod int, factor float64, atrPeriod 
 //	    fmt.Println("当前处于上涨趋势")
 //	}
 func (k *KlineDatas) SuperTrendPivot_IsUp(pivotPeriod int, factor float64, atrPeriod int) bool {
-	_k, err := k._Keep(atrPeriod * 2)
+	_k, err := k.Keep(atrPeriod * 14)
 	if err != nil {
 		return false
 	}
@@ -275,7 +275,7 @@ func (k *KlineDatas) SuperTrendPivot_IsUp(pivotPeriod int, factor float64, atrPe
 //	    fmt.Println("当前处于下跌趋势")
 //	}
 func (k *KlineDatas) SuperTrendPivot_IsDown(pivotPeriod int, factor float64, atrPeriod int) bool {
-	_k, err := k._Keep(atrPeriod * 2)
+	_k, err := k.Keep(atrPeriod * 14)
 	if err != nil {
 		return false
 	}
@@ -299,7 +299,7 @@ func (k *KlineDatas) SuperTrendPivot_IsDown(pivotPeriod int, factor float64, atr
 //
 //	upper := kline.SuperTrendPivot_GetUpper(10, 3, 14)
 func (k *KlineDatas) SuperTrendPivot_GetUpper(pivotPeriod int, factor float64, atrPeriod int) float64 {
-	_k, err := k._Keep(atrPeriod * 2)
+	_k, err := k.Keep(atrPeriod * 14)
 	if err != nil {
 		return -1
 	}
@@ -323,7 +323,7 @@ func (k *KlineDatas) SuperTrendPivot_GetUpper(pivotPeriod int, factor float64, a
 //
 //	lower := kline.SuperTrendPivot_GetLower(10, 3, 14)
 func (k *KlineDatas) SuperTrendPivot_GetLower(pivotPeriod int, factor float64, atrPeriod int) float64 {
-	_k, err := k._Keep(atrPeriod * 2)
+	_k, err := k.Keep(atrPeriod * 14)
 	if err != nil {
 		return -1
 	}

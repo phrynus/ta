@@ -150,7 +150,7 @@ func (k *KlineDatas) ADX(period int) (*TaADX, error) {
 // 返回值：
 //   - float64: 最新的ADX值，如果计算出错则返回-1
 func (k *KlineDatas) ADX_(period int) (adx, plusDI, minusDI float64) {
-	_k, err := k._Keep(period * 14)
+	_k, err := k.Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}
