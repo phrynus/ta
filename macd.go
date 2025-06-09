@@ -2,7 +2,6 @@ package ta
 
 import (
 	"math"
-	"sync"
 )
 
 // Package ta 提供技术分析指标的计算功能
@@ -49,71 +48,45 @@ type TaMacd struct {
 //
 //	macd, err := CalculateMACD(prices, 12, 26, 9)
 func CalculateMACD(prices []float64, shortPeriod, longPeriod, signalPeriod int) (*TaMacd, error) {
-	length := len(prices)
-	// 预分配所有需要的切片
-	slices := preallocateSlices(length, 5) // [shortEMA, longEMA, dif, dea, macd]
-	shortEMA, longEMA, dif, dea, macd := slices[0], slices[1], slices[2], slices[3], slices[4]
-
-	// 并行计算EMA
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	go func() {
-		defer wg.Done()
-		calculateEMA(prices, shortPeriod, shortEMA)
-	}()
-
-	go func() {
-		defer wg.Done()
-		calculateEMA(prices, longPeriod, longEMA)
-	}()
-
-	wg.Wait()
+	// 计算短期和长期EMA
+	shortEMA, err := CalculateEMA(prices, shortPeriod)
+	if err != nil {
+		return nil, err
+	}
+	longEMA, err := CalculateEMA(prices, longPeriod)
+	if err != nil {
+		return nil, err
+	}
 
 	// 计算DIF
-	for i := longPeriod - 1; i < length; i++ {
-		dif[i] = shortEMA[i] - longEMA[i]
+	dif := make([]float64, len(prices))
+	for i := 0; i < len(prices); i++ {
+		if i < longPeriod-1 {
+			dif[i] = 0
+		} else {
+			dif[i] = shortEMA.Values[i] - longEMA.Values[i]
+		}
 	}
 
-	// 计算DEA
-	calculateEMA(dif, signalPeriod, dea)
+	// 计算DEA（信号线）
+	dea, err := CalculateEMA(dif, signalPeriod)
+	if err != nil {
+		return nil, err
+	}
 
 	// 计算MACD
-	for i := 0; i < length; i++ {
-		macd[i] = 2 * (dif[i] - dea[i])
+	macd := make([]float64, len(prices))
+	for i := 0; i < len(prices); i++ {
+		macd[i] = 2 * (dif[i] - dea.Values[i]) / 2
 	}
-
 	return &TaMacd{
 		Macd:         macd,
 		Dif:          dif,
-		Dea:          dea,
+		Dea:          dea.Values,
 		ShortPeriod:  shortPeriod,
 		LongPeriod:   longPeriod,
 		SignalPeriod: signalPeriod,
 	}, nil
-}
-
-// calculateEMA 优化的EMA计算函数
-func calculateEMA(prices []float64, period int, result []float64) {
-	if len(prices) < period {
-		return
-	}
-
-	// 计算第一个EMA值
-	sum := 0.0
-	for i := 0; i < period; i++ {
-		sum += prices[i]
-	}
-	result[period-1] = sum / float64(period)
-
-	// 计算乘数
-	multiplier := 2.0 / float64(period+1)
-	oneMinusMultiplier := 1.0 - multiplier
-
-	// 使用递推公式计算后续的EMA值
-	for i := period; i < len(prices); i++ {
-		result[i] = prices[i]*multiplier + result[i-1]*oneMinusMultiplier
-	}
 }
 
 // MACD 计算K线数据的MACD指标
