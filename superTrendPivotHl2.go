@@ -17,8 +17,8 @@ type TaSuperTrendPivotHl2 struct {
 // CalculateSuperTrendPivotHl2 计算超级趋势指标
 // 参数：
 //   - klineData: K线数据集合
-//   - period: ATR计算周期
-//   - multiplier: ATR乘数
+//   - period: ATR计算周期 默认14
+//   - multiplier: ATR乘数 默认3.0
 //
 // 返回值：
 //   - *TaSuperTrendPivotHl2: 超级趋势指标结构体
@@ -118,6 +118,45 @@ func CalculateSuperTrendPivotHl2(klineData KlineDatas, period int, multiplier fl
 	}, nil
 }
 
+// SuperTrendPivotHl2 计算K线数据的超级趋势指标
+// 参数：
+//   - period: ATR计算周期 14
+//   - multiplier: ATR乘数 3.0
+//
+// 返回值：
+//   - *TaSuperTrendPivotHl2: 超级趋势指标结构体
+//   - error: 计算过程中可能发生的错误
+//
+// 示例：
+//
+//	st, err := k.SuperTrendPivotHl2(14, 3.0)
+func (k *KlineDatas) SuperTrendPivotHl2(period int, multiplier float64) (*TaSuperTrendPivotHl2, error) {
+	return CalculateSuperTrendPivotHl2(*k, period, multiplier)
+}
+
+// SuperTrendPivotHl2_ 计算最新的超级趋势值
+// 参数：
+//   - period: ATR计算周期
+//   - multiplier: ATR乘数
+//
+// 返回值：
+//   - float64: 最新的超级趋势值
+//
+// 示例：
+//
+//	value := k.SuperTrendPivotHl2_(14, 3.0)
+func (k *KlineDatas) SuperTrendPivotHl2_(period int, multiplier float64) float64 {
+	_k, err := k.Keep(period * 2)
+	if err != nil {
+		_k = *k
+	}
+	st, err := CalculateSuperTrendPivotHl2(_k, period, multiplier)
+	if err != nil {
+		return 0
+	}
+	return st.Value()
+}
+
 // Value 返回最新的超级趋势值
 // 返回值：
 //   - float64: 最新的超级趋势值
@@ -153,41 +192,63 @@ func (t *TaSuperTrendPivotHl2) GetBands() (upper, lower float64) {
 	return t.UpperBand[lastIndex], t.LowerBand[lastIndex]
 }
 
-// SuperTrendPivotHl2 计算K线数据的超级趋势指标
-// 参数：
-//   - period: ATR计算周期
-//   - multiplier: ATR乘数
-//
-// 返回值：
-//   - *TaSuperTrendPivotHl2: 超级趋势指标结构体
-//   - error: 计算过程中可能发生的错误
-//
-// 示例：
-//
-//	st, err := k.SuperTrendPivotHl2(14, 3.0)
-func (k *KlineDatas) SuperTrendPivotHl2(period int, multiplier float64) (*TaSuperTrendPivotHl2, error) {
-	return CalculateSuperTrendPivotHl2(*k, period, multiplier)
-}
+/* Pine
+//@version=6
+indicator('SuperTrend Pivot HL2', overlay = true)
 
-// SuperTrendPivotHl2_ 计算最新的超级趋势值
-// 参数：
-//   - period: ATR计算周期
-//   - multiplier: ATR乘数
-//
-// 返回值：
-//   - float64: 最新的超级趋势值
-//
-// 示例：
-//
-//	value := k.SuperTrendPivotHl2_(14, 3.0)
-func (k *KlineDatas) SuperTrendPivotHl2_(period int, multiplier float64) float64 {
-	_k, err := k.Keep(period * 2)
-	if err != nil {
-		_k = *k
-	}
-	st, err := CalculateSuperTrendPivotHl2(_k, period, multiplier)
-	if err != nil {
-		return 0
-	}
-	return st.Value()
-}
+// 输入参数
+atrPeriod = input.int(14, 'ATR周期', minval = 1)
+atrMultiplier = input.float(3.0, 'ATR乘数', minval = 0.1, step = 0.1)
+
+// 计算基础值
+atr = ta.atr(atrPeriod)
+
+// 计算通道
+upperBand = hl2 + atrMultiplier * atr
+lowerBand = hl2 - atrMultiplier * atr
+
+// 趋势跟踪逻辑
+var float finalUpperBand = na
+var float finalLowerBand = na
+var int trend = 0
+
+// 更新通道边界
+finalUpperBand := if upperBand < nz(finalUpperBand[1], upperBand) or close[1] > nz(finalUpperBand[1], upperBand)
+    upperBand
+else
+    nz(finalUpperBand[1], upperBand)
+
+finalLowerBand := if lowerBand > nz(finalLowerBand[1], lowerBand) or close[1] < nz(finalLowerBand[1], lowerBand)
+    lowerBand
+else
+    nz(finalLowerBand[1], lowerBand)
+
+// 确定趋势方向
+trend := if trend[1] <= 0
+    close > finalUpperBand ? 1 : -1
+else
+    close < finalLowerBand ? -1 : 1
+
+// 计算超级趋势值
+superTrend = trend == 1 ? finalLowerBand : finalUpperBand
+
+// 绘制
+upTrend = trend == 1
+downTrend = trend == -1
+
+plot(superTrend, 'SuperTrend', color = upTrend ? color.green : color.red, linewidth = 2)
+plot(finalUpperBand, 'Upper Band', color = color.new(color.gray, 50))
+plot(finalLowerBand, 'Lower Band', color = color.new(color.gray, 50))
+
+// 填充背景
+// fill(plot1, plot2, color = upTrend ? color.new(color.green, 90) : color.new(color.red, 90))
+
+// 显示趋势变化点
+plotshape(trend != trend[1] and upTrend, 'Up Trend', style = shape.triangleup, location = location.belowbar, color = color.green, size = size.small)
+plotshape(trend != trend[1] and downTrend, 'Down Trend', style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
+
+// 生成信号
+alertcondition(trend != trend[1] and upTrend, '买入信号', '价格突破上轨，趋势转多')
+alertcondition(trend != trend[1] and downTrend, '卖出信号', '价格突破下轨，趋势转空')
+
+*/
