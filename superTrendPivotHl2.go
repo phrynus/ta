@@ -14,7 +14,7 @@ type TaSuperTrendPivotHl2 struct {
 	Multiplier float64   `json:"multiplier"` // ATR乘数
 }
 
-// CalculateSuperTrendPivotHl2 计算超级趋势指标
+// CalculateSuperTrendPivotHl2 计算超级趋势指标 基于hl2中轴
 // 参数：
 //   - klineData: K线数据集合
 //   - period: ATR计算周期 默认14
