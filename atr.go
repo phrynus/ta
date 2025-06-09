@@ -100,7 +100,7 @@ func (k *KlineDatas) ATR(period int) (*TaATR, error) {
 //
 //	value := k.ATR_(14)
 func (k *KlineDatas) ATR_(period int) float64 {
-	_k, err := k._Keep(period * 2)
+	_k, err := k._Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}

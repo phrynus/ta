@@ -111,7 +111,7 @@ func (k *KlineDatas) RMA(period int, source string) (*TaRMA, error) {
 //
 //	value := kline.RMA_(14, "close")
 func (k *KlineDatas) RMA_(period int, source string) float64 {
-	_k, err := k._Keep(period * 2)
+	_k, err := k._Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}

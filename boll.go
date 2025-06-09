@@ -123,7 +123,7 @@ func (k *KlineDatas) Boll(period int, stdDev float64, source string) (*TaBoll, e
 //	upper, mid, lower := k.Boll_(20, 2, "close")
 func (k *KlineDatas) Boll_(period int, stdDev float64, source string) (upper, mid, lower float64) {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(period * 2)
+	_k, err := k._Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}

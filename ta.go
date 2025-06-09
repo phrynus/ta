@@ -567,3 +567,62 @@ func (k *KlineDatas) _GetLast(source string) float64 {
 		return -1
 	}
 }
+
+// preallocateSlices 预分配多个切片
+// 参数：
+//   - length: 每个切片的长度
+//   - count: 需要预分配的切片数量
+//
+// 返回值：
+//   - [][]float64: 预分配的切片数组
+//
+// 说明：
+//
+//	预分配内存可以提高性能，避免运行时的内存分配
+//
+// 示例：
+//
+//	slices := preallocateSlices(100, 3) // 预分配3个长度为100的切片
+func preallocateSlices(length int, count int) [][]float64 {
+	slices := make([][]float64, count)
+	for i := range slices {
+		slices[i] = make([]float64, length)
+	}
+	return slices
+}
+
+// max 返回两个数中的较大值 (Maximum Value)
+// 参数：
+//   - a: 第一个数
+//   - b: 第二个数
+//
+// 返回值：
+//   - float64: 较大的数
+//
+// 示例：
+//
+//	maxValue := max(1.2, 3.4)
+func max(a, b float64) float64 {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+// min 返回两个数中的较小值 (Minimum Value)
+// 参数：
+//   - a: 第一个数
+//   - b: 第二个数
+//
+// 返回值：
+//   - float64: 较小的数
+//
+// 示例：
+//
+//	minValue := min(1.2, 3.4)
+func min(a, b float64) float64 {
+	if a < b {
+		return a
+	}
+	return b
+}

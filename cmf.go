@@ -63,38 +63,28 @@ func CalculateCMF(high, low, close, volume []float64, period int) (*TaCMF, error
 	}
 
 	length := len(high)
-	// 预分配所有需要的切片
-	slices := preallocateSlices(length, 2) // [mfv, cmf]
-	mfv, cmf := slices[0], slices[1]
+	mfv := make([]float64, length) // 货币流量值
+	cmf := make([]float64, length) // CMF值
 
-	// 并行计算货币流量值
-	parallelProcess(high, func(data []float64, start, end int) {
-		for i := start; i < end; i++ {
-			if high[i] == low[i] {
-				mfv[i] = 0
-				continue
-			}
+	// 计算货币流量值
+	for i := 0; i < length; i++ {
+		if high[i] == low[i] {
+			mfv[i] = 0
+		} else {
 			// 计算货币流量乘数
 			mfm := ((close[i] - low[i]) - (high[i] - close[i])) / (high[i] - low[i])
 			mfv[i] = mfm * volume[i]
 		}
-	})
-
-	// 使用滑动窗口计算CMF
-	var sumMFV, sumVolume float64
-	// 初始化第一个窗口
-	for i := 0; i < period; i++ {
-		sumMFV += mfv[i]
-		sumVolume += volume[i]
-	}
-	if sumVolume != 0 {
-		cmf[period-1] = sumMFV / sumVolume
 	}
 
-	// 滑动窗口计算后续值
-	for i := period; i < length; i++ {
-		sumMFV = sumMFV - mfv[i-period] + mfv[i]
-		sumVolume = sumVolume - volume[i-period] + volume[i]
+	// 计算CMF
+	for i := period - 1; i < length; i++ {
+		sumMFV := 0.0
+		sumVolume := 0.0
+		for j := 0; j < period; j++ {
+			sumMFV += mfv[i-j]
+			sumVolume += volume[i-j]
+		}
 		if sumVolume != 0 {
 			cmf[i] = sumMFV / sumVolume
 		}
@@ -258,7 +248,7 @@ func (t *TaCMF) IsBearishDivergence(prices []float64) bool {
 //	value := kline.CMF_(20, "close")
 func (k *KlineDatas) CMF_(period int, source string) float64 {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(period * 2)
+	_k, err := k._Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}

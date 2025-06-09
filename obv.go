@@ -54,27 +54,19 @@ func CalculateOBV(prices, volumes []float64) (*TaOBV, error) {
 		return nil, fmt.Errorf("计算数据不足")
 	}
 
-	length := len(prices)
-	// 预分配结果切片
-	obv := make([]float64, length)
+	obv := make([]float64, len(prices))
 	obv[0] = volumes[0] // 第一个值设为当日成交量
 
-	// 并行计算OBV
-	parallelProcess(prices, func(data []float64, start, end int) {
-		if start == 0 {
-			start = 1 // 从第二个元素开始计算
+	// 计算OBV
+	for i := 1; i < len(prices); i++ {
+		if prices[i] > prices[i-1] {
+			obv[i] = obv[i-1] + volumes[i]
+		} else if prices[i] < prices[i-1] {
+			obv[i] = obv[i-1] - volumes[i]
+		} else {
+			obv[i] = obv[i-1]
 		}
-		for i := start; i < end; i++ {
-			switch {
-			case data[i] > data[i-1]:
-				obv[i] = obv[i-1] + volumes[i]
-			case data[i] < data[i-1]:
-				obv[i] = obv[i-1] - volumes[i]
-			default:
-				obv[i] = obv[i-1]
-			}
-		}
-	})
+	}
 
 	return &TaOBV{
 		Values: obv,

@@ -95,7 +95,7 @@ func (k *KlineDatas) SMA(period int, source string) (*TaSMA, error) {
 //
 //	value := k.SMA_(20, "close")
 func (k *KlineDatas) SMA_(period int, source string) float64 {
-	_k, err := k._Keep(period * 2)
+	_k, err := k._Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}

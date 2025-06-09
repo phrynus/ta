@@ -139,7 +139,7 @@ func (k *KlineDatas) SuperTrend(period int, multiplier float64) (*TaSuperTrend, 
 //
 //	upper, lower, isUpTrend := kline.SuperTrend_(10, 3)
 func (k *KlineDatas) SuperTrend_(period int, multiplier float64) (upper, lower float64, isUpTrend bool) {
-	_k, err := k._Keep(period * 2)
+	_k, err := k._Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}

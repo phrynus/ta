@@ -92,7 +92,7 @@ func (k *KlineDatas) CCI(period int) (*TaCCI, error) {
 // 返回值：
 //   - float64: 最新的CCI值，如果计算失败则返回0
 func (k *KlineDatas) CCI_(period int) float64 {
-	_k, err := k._Keep(period * 2)
+	_k, err := k._Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}

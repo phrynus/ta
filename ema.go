@@ -99,7 +99,7 @@ func (k *KlineDatas) EMA(period int, source string) (*TaEMA, error) {
 //	value := k.EMA_(20, "close")
 func (k *KlineDatas) EMA_(period int, source string) float64 {
 	// 只保留必要的计算数据
-	_k, err := k._Keep(period * 2)
+	_k, err := k._Keep(period * 14)
 	if err != nil {
 		_k = *k
 	}
