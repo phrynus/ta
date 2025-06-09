@@ -181,7 +181,7 @@ func (k *KlineDatas) SuperTrendPivotHl2(period int, multiplier float64) (*TaSupe
 //
 //	value := k.SuperTrendPivotHl2_(14, 3.0)
 func (k *KlineDatas) SuperTrendPivotHl2_(period int, multiplier float64) float64 {
-	_k, err := k._Keep(period * 2)
+	_k, err := k.Keep(period * 2)
 	if err != nil {
 		_k = *k
 	}
