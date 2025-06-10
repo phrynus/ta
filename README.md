@@ -7,6 +7,8 @@
 ## 项目结构
 
 - `ta.go`: 核心数据结构和通用工具函数
+- `mlFactor.go`: MLFactor(机器学习因子系统)
+- `dtr.go`: CalculateDTR(计算决策树回归指标)
 - `macd.go`: MACD(移动平均趋势指标)的实现
 - `ema.go`: EMA(指数移动平均线)的实现
 - `sma.go`: SMA(简单移动平均线)的实现
@@ -27,13 +29,15 @@
 - `t3.go`: T3(三重指数移动平均线)的实现
 - `rma.go`: RMA(移动平均)的实现
 - `superTrendPivotHl2.go`: SuperTrend的HL2轴点计算实现
-
+- `kama.go`: KAMA (考夫曼自适应移动平均线)
+- `deepts.go`: DeepTS (深度学习时间序列)
+- `dtr.go`: CalculateDTR(计算决策树回归指标)
 
 ## 使用示例
 
 ```go
-// 初始化binanceKline数据
-binanceKline, err := binance.NewKlinesService().
+// 1. 初始化binanceKline数据
+binanceKline, err := binance.NewFuturesKlinesService().  // 使用期货K线接口
     Limit(1000).
     Symbol("BTCUSDT").
     Interval("1H").
@@ -42,41 +46,65 @@ if err != nil {
     log.Fatal(err)
 }
 
-kline, err := ta.NewKlineDatas(k, true)
-
-// 初始化K线数据
-kline := &KlineDatas{...}
-
-// 计算MACD
-macd, err := kline.MACD(12, 26, 9)
+// 2. 转换为ta.KlineDatas格式
+kline, err := ta.NewKlineDatas(binanceKline, true)
 if err != nil {
-    return err
+    log.Fatal(err)
 }
 
-// 判断是否出现金叉买入信号
-if macd.IsGoldenCross() {
-    // 执行买入逻辑
-}
-
-// 计算RSI
-rsi, err := kline.RSI(14)
+// 3. 计算技术指标
+macd, err := kline.MACD("close", 12, 26, 9)
 if err != nil {
-    return err
+    log.Fatal(err)
 }
 
-// 判断是否超买
-if rsi.IsOverbought() {
-    // 执行卖出逻辑
+rsi, err := kline.RSI(14, "close")
+if err != nil {
+    log.Fatal(err)
 }
+
+atr, err := kline.ATR(14)
+if err != nil {
+    log.Fatal(err)
+}
+
+// 4. 计算机器学习因子
+mlFactor, err := kline.MLFactor(20, "ensemble")
+if err != nil {
+    log.Fatal(err)
+}
+
+prediction, probability, confidence := mlFactor.Value()
+log.Printf("预测涨幅: %.2f%%", prediction*100)
+log.Printf("预测概率: %.2f%%", probability*100)
+log.Printf("预测置信度: %.2f%%", confidence*100)
+
 ```
 
 ## 注意事项
 
-1. 所有指标都需要足够的历史数据才能产生有效信号
-2. 不同指标适用于不同的市场环境
-3. 参数可以根据实际需求进行调整
-4. 技术指标仅供参考，需要结合基本面分析和市场环境
+1. 合约交易风险较大，建议：
+   - 严格执行止损
+   - 控制杠杆倍数
+   - 单笔风险不超过账户的2%
+   - 总持仓风险不超过账户的6%
+
+2. 技术指标使用建议：
+   - 趋势市场：以MACD、SuperTrend为主
+   - 震荡市场：以RSI、KDJ为主
+   - 突破行情：以ATR、Bollinger Bands为主
+
+3. 风险控制要点：
+   - 设置合理的止损位
+   - 使用追踪止损保护利润
+   - 根据波动率动态调整仓位
+   - 避免过度交易
+
+4. 机器学习预测注意：
+   - 预测概率低于60%时谨慎入场
+   - 趋势强度低于0.5时减小仓位
+   - 定期重新训练模型
 
 ## 免责声明
 
-本项目仅提供技术分析指标的计算功能，不涉及任何交易策略或投资建议。请在使用前自行评估风险。
+本项目仅提供技术分析工具，不构成投资建议。合约交易有高杠杆风险，请谨慎使用。
