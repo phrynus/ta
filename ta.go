@@ -204,7 +204,7 @@ func extractKlineData(item reflect.Value, cache *fieldCache) (startTime int64, o
 // NewKlineDatas 创建新的K线数据集合 (Create New Kline Data Collection)
 // 参数：
 //   - klines: 原始K线数据接口
-//   - l: 是否进行日志记录
+//   - l: 是否剔除最后一条数据
 //
 // 返回值：
 //   - KlineDatas: 处理后的K线数据集合

@@ -2,13 +2,7 @@
 
 这是一个用Go语言实现的技术分析指标库，提供了常用的技术分析指标计算功能。
 
-## 功能特点
-
-- 支持多种技术分析指标
-- 提供完整的信号判断功能
-- 统一的API设计和错误处理
-- 详细的文档和使用示例
-- 高性能的计算实现
+兼容`go-binance`库K线数据结构。
 
 ## 项目结构
 
@@ -38,6 +32,18 @@
 ## 使用示例
 
 ```go
+// 初始化binanceKline数据
+binanceKline, err := binance.NewKlinesService().
+    Limit(1000).
+    Symbol("BTCUSDT").
+    Interval("1H").
+    Do(context.Background())
+if err != nil {
+    log.Fatal(err)
+}
+
+kline, err := ta.NewKlineDatas(k, true)
+
 // 初始化K线数据
 kline := &KlineDatas{...}
 
