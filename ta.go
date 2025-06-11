@@ -9,34 +9,28 @@ import (
 	"sync"
 )
 
-// KlineData K线数据结构 (Candlestick Data Structure)
-// 包含开盘时间、开盘价、最高价、最低价、收盘价和成交量等基本信息
 type KlineData struct {
-	StartTime int64   `json:"startTime"` // 开盘时间戳
-	Open      float64 `json:"open"`      // 开盘价
-	High      float64 `json:"high"`      // 最高价
-	Low       float64 `json:"low"`       // 最低价
-	Close     float64 `json:"close"`     // 收盘价
-	Volume    float64 `json:"volume"`    // 成交量
+	StartTime int64   `json:"startTime"`
+	Open      float64 `json:"open"`
+	High      float64 `json:"high"`
+	Low       float64 `json:"low"`
+	Close     float64 `json:"close"`
+	Volume    float64 `json:"volume"`
 }
 
-// KlineDatas K线数据集合 (Candlestick Data Collection)
 type KlineDatas []*KlineData
 
-// fieldCache 字段缓存结构 (Field Cache Structure)
-// 用于缓存结构体字段的索引信息，提高反射性能
 type fieldCache struct {
-	timeFieldIndex   []int // 时间字段索引
-	openFieldIndex   []int // 开盘价字段索引
-	highFieldIndex   []int // 最高价字段索引
-	lowFieldIndex    []int // 最低价字段索引
-	closeFieldIndex  []int // 收盘价字段索引
-	volumeFieldIndex []int // 成交量字段索引
-	isTimeInt64      bool  // 时间字段是否为int64类型
-	isStringPrice    bool  // 价格是否为字符串类型
+	timeFieldIndex   []int
+	openFieldIndex   []int
+	highFieldIndex   []int
+	lowFieldIndex    []int
+	closeFieldIndex  []int
+	volumeFieldIndex []int
+	isTimeInt64      bool
+	isStringPrice    bool
 }
 
-// 支持的字段名称常量
 var (
 	timeFields    = []string{"StartTime", "OpenTime", "Time", "t", "T", "Timestamp", "OpenAt", "EventTime"}
 	openFields    = []string{"Open", "OpenPrice", "O", "o"}
@@ -48,22 +42,6 @@ var (
 	cacheMutex    sync.RWMutex
 )
 
-// findAndCacheFields 解析并缓存结构体的字段信息 (Parse and Cache Struct Fields)
-// 参数：
-//   - t: 需要解析的结构体类型
-//
-// 返回值：
-//   - *fieldCache: 包含字段缓存信息的结构体
-//   - error: 解析过程中可能发生的错误
-//
-// 说明：
-//
-//	使用反射解析结构体字段，并将结果缓存以提高性能
-//	支持多种常见的字段命名方式
-//
-// 示例：
-//
-//	cache, err := findAndCacheFields(reflect.TypeOf(klineData))
 func findAndCacheFields(t reflect.Type) (*fieldCache, error) {
 	cacheMutex.RLock()
 	if cache, ok := fieldCacheMap[t]; ok {
@@ -75,14 +53,12 @@ func findAndCacheFields(t reflect.Type) (*fieldCache, error) {
 	cacheMutex.Lock()
 	defer cacheMutex.Unlock()
 
-	// 双重检查
 	if cache, ok := fieldCacheMap[t]; ok {
 		return cache, nil
 	}
 
 	cache := &fieldCache{}
 
-	// 查找时间字段
 	for _, field := range timeFields {
 		if f, ok := t.FieldByName(field); ok {
 			cache.timeFieldIndex = f.Index
@@ -94,7 +70,6 @@ func findAndCacheFields(t reflect.Type) (*fieldCache, error) {
 		return nil, fmt.Errorf("未找到时间字段，支持的字段名：%v", timeFields)
 	}
 
-	// 查找价格字段
 	for _, field := range openFields {
 		if f, ok := t.FieldByName(field); ok {
 			cache.openFieldIndex = f.Index
@@ -131,39 +106,16 @@ func findAndCacheFields(t reflect.Type) (*fieldCache, error) {
 	return cache, nil
 }
 
-// extractKlineData 从反射值中提取K线数据的各个字段 (Extract Kline Data Fields)
-// 参数：
-//   - item: 包含K线数据的反射值
-//   - cache: 字段缓存信息
-//
-// 返回值：
-//   - startTime: K线的起始时间戳
-//   - open: 开盘价
-//   - high: 最高价
-//   - low: 最低价
-//   - close: 收盘价
-//   - volume: 成交量
-//   - err: 提取过程中可能发生的错误
-//
-// 说明：
-//
-//	使用缓存的字段索引快速提取数据
-//	支持多种数据类型的自动转换
-//
-// 示例：
-//
-//	startTime, open, high, low, close, volume, err := extractKlineData(reflect.ValueOf(kline), cache)
 func extractKlineData(item reflect.Value, cache *fieldCache) (startTime int64, open, high, low, close, volume string, err error) {
 	if item.Kind() == reflect.Ptr {
 		item = item.Elem()
 	}
 
-	// 使用字段索引直接访问
 	timeField := item.FieldByIndex(cache.timeFieldIndex)
 	if cache.isTimeInt64 {
 		startTime = timeField.Int()
 	} else {
-		// 处理其他类型的时间字段
+
 		switch timeField.Kind() {
 		case reflect.String:
 			if t, err := strconv.ParseInt(timeField.String(), 10, 64); err == nil {
@@ -182,7 +134,7 @@ func extractKlineData(item reflect.Value, cache *fieldCache) (startTime int64, o
 		if cache.isStringPrice {
 			return field.String()
 		}
-		// 如果是数值类型，直接转换为字符串
+
 		switch field.Kind() {
 		case reflect.Float64:
 			return strconv.FormatFloat(field.Float(), 'f', -1, 64)
@@ -201,24 +153,6 @@ func extractKlineData(item reflect.Value, cache *fieldCache) (startTime int64, o
 	return
 }
 
-// NewKlineDatas 创建新的K线数据集合 (Create New Kline Data Collection)
-// 参数：
-//   - klines: 原始K线数据接口
-//   - l: 是否剔除最后一条数据
-//
-// 返回值：
-//   - KlineDatas: 处理后的K线数据集合
-//   - error: 处理过程中可能发生的错误
-//
-// 说明：
-//
-//	支持多种格式的K线数据转换
-//	可以并行处理大量数据以提高性能
-//	自动处理字段类型转换
-//
-// 示例：
-//
-//	data, err := NewKlineDatas(rawKlines, true)
 func NewKlineDatas(klines interface{}, l bool) (KlineDatas, error) {
 	v := reflect.ValueOf(klines)
 	if v.Kind() != reflect.Slice {
@@ -233,10 +167,8 @@ func NewKlineDatas(klines interface{}, l bool) (KlineDatas, error) {
 		return nil, errors.New("没有K线数据")
 	}
 
-	// 预分配内存
 	klineDataList := make(KlineDatas, length)
 
-	// 获取字段缓存
 	firstItem := v.Index(0)
 	if firstItem.Kind() == reflect.Ptr {
 		firstItem = firstItem.Elem()
@@ -246,7 +178,6 @@ func NewKlineDatas(klines interface{}, l bool) (KlineDatas, error) {
 		return nil, err
 	}
 
-	// 使用工作池处理大量数据
 	if length > 1000 {
 		var wg sync.WaitGroup
 		errChan := make(chan error, length)
@@ -301,20 +232,18 @@ func NewKlineDatas(klines interface{}, l bool) (KlineDatas, error) {
 			}(start, end)
 		}
 
-		// 等待所有工作完成
 		go func() {
 			wg.Wait()
 			close(errChan)
 		}()
 
-		// 检查错误
 		for err := range errChan {
 			if err != nil {
 				return nil, err
 			}
 		}
 	} else {
-		// 对于小数据量，直接处理
+
 		for i := 0; i < length; i++ {
 			startTime, open, high, low, close, volume, err := extractKlineData(v.Index(i), cache)
 			if err != nil {
@@ -349,22 +278,6 @@ func NewKlineDatas(klines interface{}, l bool) (KlineDatas, error) {
 	return klineDataList, nil
 }
 
-// ExtractSlice 从K线数据集合中提取指定类型的价格序列 (Extract Price Series)
-// 参数：
-//   - priceType: 价格类型（"open"/"high"/"low"/"close"/"volume"）
-//
-// 返回值：
-//   - []float64: 提取的价格序列
-//   - error: 提取过程中可能发生的错误
-//
-// 说明：
-//
-//	支持提取开盘价、最高价、最低价、收盘价和成交量
-//	返回的序列长度与K线数据集合长度相同
-//
-// 示例：
-//
-//	prices, err := klines.ExtractSlice("close")
 func (k *KlineDatas) ExtractSlice(priceType string) ([]float64, error) {
 	var prices []float64
 	for _, kline := range *k {
@@ -384,21 +297,6 @@ func (k *KlineDatas) ExtractSlice(priceType string) ([]float64, error) {
 	return prices, nil
 }
 
-// _Add 添加新的K线数据 (Add New Kline Data)
-// 参数：
-//   - wsKline: 新的K线数据
-//
-// 返回值：
-//   - error: 添加过程中可能发生的错误
-//
-// 说明：
-//
-//	支持添加单个K线数据
-//	自动进行数据类型转换和验证
-//
-// 示例：
-//
-//	err := klines._Add(newKline)
 func (k *KlineDatas) Add(wsKline interface{}) error {
 	v := reflect.ValueOf(wsKline)
 	if v.Kind() == reflect.Ptr {
@@ -408,7 +306,6 @@ func (k *KlineDatas) Add(wsKline interface{}) error {
 		return fmt.Errorf("数据必须是结构体类型")
 	}
 
-	// 获取字段缓存
 	cache, err := findAndCacheFields(v.Type())
 	if err != nil {
 		return err
@@ -444,21 +341,6 @@ func (k *KlineDatas) Add(wsKline interface{}) error {
 	return nil
 }
 
-// _Remove 移除指定数量的K线数据 (Remove Kline Data)
-// 参数：
-//   - n: 需要移除的数据数量
-//
-// 返回值：
-//   - error: 移除过程中可能发生的错误
-//
-// 说明：
-//
-//	从集合开头移除指定数量的K线数据
-//	如果n大于集合长度，返回错误
-//
-// 示例：
-//
-//	err := klines._Remove(10)
 func (k *KlineDatas) Remove(n int) error {
 	if n <= 0 {
 		return fmt.Errorf("删除数量必须大于0")
@@ -468,27 +350,10 @@ func (k *KlineDatas) Remove(n int) error {
 		return fmt.Errorf("要删除的数量(%d)大于现有数据量(%d)", n, len(*k))
 	}
 
-	// 保留后面的数据
 	*k = (*k)[n:]
 	return nil
 }
 
-// Keep 保留指定数量的最新K线数据 (Keep Latest Kline Data)
-// 参数：
-//   - n: 需要保留的数据数量
-//
-// 返回值：
-//   - KlineDatas: 保留的K线数据集合
-//   - error: 处理过程中可能发生的错误
-//
-// 说明：
-//
-//	保留集合末尾的n个K线数据
-//	如果n大于集合长度，返回错误
-//
-// 示例：
-//
-//	kept, err := klines.Keep(100)
 func (k *KlineDatas) Keep(n int) (KlineDatas, error) {
 	if n <= 0 {
 		return nil, fmt.Errorf("保留数量必须大于0")
@@ -498,27 +363,11 @@ func (k *KlineDatas) Keep(n int) (KlineDatas, error) {
 		return nil, fmt.Errorf("要保留的数量(%d)大于现有数据量(%d)", n, len(*k))
 	}
 
-	// 创建新的KlineDatas并复制最后n根K线数据
 	newK := make(KlineDatas, n)
 	copy(newK, (*k)[len(*k)-n:])
 	return newK, nil
 }
 
-// Keep_ 保留指定数量的最新K线数据（原地修改） (Keep Latest Kline Data In-Place)
-// 参数：
-//   - n: 需要保留的数据数量
-//
-// 返回值：
-//   - error: 处理过程中可能发生的错误
-//
-// 说明：
-//
-//	直接修改原集合，保留末尾的n个K线数据
-//	如果n大于集合长度，返回错误
-//
-// 示例：
-//
-//	err := klines.Keep_(100)
 func (k *KlineDatas) Keep_(n int) error {
 	if n <= 0 {
 		return fmt.Errorf("保留数量必须大于0")
@@ -532,21 +381,6 @@ func (k *KlineDatas) Keep_(n int) error {
 	return nil
 }
 
-// GetLast 获取最后一个K线数据的指定价格 (Get Last Price)
-// 参数：
-//   - source: 价格类型（"open"/"high"/"low"/"close"/"volume"）
-//
-// 返回值：
-//   - float64: 最后一个K线数据的指定价格
-//
-// 说明：
-//
-//	获取集合中最后一个K线数据的指定类型价格
-//	如果集合为空或价格类型无效，返回-1
-//
-// 示例：
-//
-//	lastClose := klines.GetLast("close")
 func (k *KlineDatas) GetLast(source string) float64 {
 	if len(*k) == 0 {
 		return -1
@@ -568,21 +402,6 @@ func (k *KlineDatas) GetLast(source string) float64 {
 	}
 }
 
-// preallocateSlices 预分配多个切片
-// 参数：
-//   - length: 每个切片的长度
-//   - count: 需要预分配的切片数量
-//
-// 返回值：
-//   - [][]float64: 预分配的切片数组
-//
-// 说明：
-//
-//	预分配内存可以提高性能，避免运行时的内存分配
-//
-// 示例：
-//
-//	slices := preallocateSlices(100, 3) // 预分配3个长度为100的切片
 func preallocateSlices(length int, count int) [][]float64 {
 	slices := make([][]float64, count)
 	for i := range slices {
@@ -591,17 +410,6 @@ func preallocateSlices(length int, count int) [][]float64 {
 	return slices
 }
 
-// max 返回两个数中的较大值 (Maximum Value)
-// 参数：
-//   - a: 第一个数
-//   - b: 第二个数
-//
-// 返回值：
-//   - float64: 较大的数
-//
-// 示例：
-//
-//	maxValue := max(1.2, 3.4)
 func max(a, b float64) float64 {
 	if a > b {
 		return a
@@ -609,17 +417,6 @@ func max(a, b float64) float64 {
 	return b
 }
 
-// min 返回两个数中的较小值 (Minimum Value)
-// 参数：
-//   - a: 第一个数
-//   - b: 第二个数
-//
-// 返回值：
-//   - float64: 较小的数
-//
-// 示例：
-//
-//	minValue := min(1.2, 3.4)
 func min(a, b float64) float64 {
 	if a < b {
 		return a
