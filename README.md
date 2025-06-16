@@ -21,7 +21,6 @@
 - `cci.go`: CCI(顺势指标)
 - `obv.go`: OBV(能量潮指标)
 - `cmf.go`: CMF(蔡金货币流量)
-- `ichimoku.go`: Ichimoku Cloud(一目均衡图)
 - `kdj.go`: KDJ(随机指标)
 - `adx.go`: ADX(平均趋向指标)
 - `t3.go`: T3(三重指数移动平均线)

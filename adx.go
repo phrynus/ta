@@ -173,34 +173,6 @@ func (t *TaADX) Value() (adx, plusDI, minusDI float64) {
 	return t.ADX[lastIndex], t.PlusDI[lastIndex], t.MinusDI[lastIndex]
 }
 
-// IsTrendStrong 判断当前趋势是否强势
-// 参数：
-//   - threshold: 可选的阈值，默认为25.0
-//
-// 返回值：
-//   - bool: 如果ADX值大于阈值则返回true，表示强势趋势
-func (t *TaADX) IsTrendStrong(threshold ...float64) bool {
-	th := 25.0
-	if len(threshold) > 0 {
-		th = threshold[0]
-	}
-	return t.ADX[len(t.ADX)-1] > th
-}
-
-// IsTrendWeak 判断当前趋势是否弱势
-// 参数：
-//   - threshold: 可选的阈值，默认为20.0
-//
-// 返回值：
-//   - bool: 如果ADX值小于阈值则返回true，表示弱势趋势
-func (t *TaADX) IsTrendWeak(threshold ...float64) bool {
-	th := 20.0
-	if len(threshold) > 0 {
-		th = threshold[0]
-	}
-	return t.ADX[len(t.ADX)-1] < th
-}
-
 // IsTrendStrengthening 判断趋势是否正在增强
 // 返回值：
 //   - bool: 如果当前ADX值大于前一个ADX值则返回true，表示趋势正在增强
@@ -223,19 +195,6 @@ func (t *TaADX) IsTrendWeakening() bool {
 	return t.ADX[lastIndex] < t.ADX[lastIndex-1]
 }
 
-// GetTrend 获取当前趋势方向
-// 返回值：
-//   - int: 1表示上升趋势，-1表示下降趋势，0表示无明显趋势
-func (t *TaADX) GetTrend() int {
-	lastIndex := len(t.ADX) - 1
-	if t.PlusDI[lastIndex] > t.MinusDI[lastIndex] {
-		return 1
-	} else if t.PlusDI[lastIndex] < t.MinusDI[lastIndex] {
-		return -1
-	}
-	return 0
-}
-
 // IsBullishCrossover 判断是否出现多头交叉
 // 返回值：
 //   - bool: 如果+DI从下向上穿过-DI则返回true，表示出现多头交叉
@@ -256,14 +215,6 @@ func (t *TaADX) IsBearishCrossover() bool {
 	}
 	lastIndex := len(t.PlusDI) - 1
 	return t.PlusDI[lastIndex-1] >= t.MinusDI[lastIndex-1] && t.PlusDI[lastIndex] < t.MinusDI[lastIndex]
-}
-
-// GetDISpread 计算+DI和-DI之间的差值
-// 返回值：
-//   - float64: +DI与-DI的差值
-func (t *TaADX) GetDISpread() float64 {
-	lastIndex := len(t.PlusDI) - 1
-	return t.PlusDI[lastIndex] - t.MinusDI[lastIndex]
 }
 
 // IsDIConverging 判断DI是否正在收敛
@@ -290,40 +241,4 @@ func (t *TaADX) IsDIDiverging() bool {
 	currentSpread := math.Abs(t.PlusDI[lastIndex] - t.MinusDI[lastIndex])
 	previousSpread := math.Abs(t.PlusDI[lastIndex-1] - t.MinusDI[lastIndex-1])
 	return currentSpread > previousSpread
-}
-
-// GetTrendStrength 获取当前趋势强度
-// 返回值：
-//   - float64: 最新的ADX值，表示趋势强度
-func (t *TaADX) GetTrendStrength() float64 {
-	lastIndex := len(t.ADX) - 1
-	return t.ADX[lastIndex]
-}
-
-// IsExtremeTrend 判断是否处于极端趋势
-// 参数：
-//   - threshold: 可选的阈值，默认为50.0
-//
-// 返回值：
-//   - bool: 如果ADX值大于阈值则返回true，表示处于极端趋势
-func (t *TaADX) IsExtremeTrend(threshold ...float64) bool {
-	th := 50.0
-	if len(threshold) > 0 {
-		th = threshold[0]
-	}
-	return t.ADX[len(t.ADX)-1] > th
-}
-
-// GetTrendQuality 计算趋势质量
-// 返回值：
-//   - float64: 趋势质量值，由ADX值和DI差值计算得出
-//
-// 说明：
-//
-//	趋势质量通过ADX值和DI差值的乘积来衡量，
-//	该值越大表示趋势越明显且方向越清晰
-func (t *TaADX) GetTrendQuality() float64 {
-	lastIndex := len(t.ADX) - 1
-	diSpread := math.Abs(t.PlusDI[lastIndex] - t.MinusDI[lastIndex])
-	return t.ADX[lastIndex] * diSpread / 100
 }
