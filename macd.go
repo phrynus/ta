@@ -222,24 +222,30 @@ func (t *TaMacd) CheckDivergence(prices []float64) (bullish, bearish bool) {
 	// 寻找 MACD 和价格的高低点
 	macdMin, macdMax := math.MaxFloat64, math.SmallestNonzeroFloat64
 	priceMin, priceMax := math.MaxFloat64, math.SmallestNonzeroFloat64
+	var macdMinIndex, macdMaxIndex, priceMinIndex, priceMaxIndex int
+
 	for i := 0; i < 20; i++ {
 		if t.Macd[lastIndex-i] < macdMin {
 			macdMin = t.Macd[lastIndex-i]
+			macdMinIndex = lastIndex - i
 		}
 		if t.Macd[lastIndex-i] > macdMax {
 			macdMax = t.Macd[lastIndex-i]
+			macdMaxIndex = lastIndex - i
 		}
 		if prices[lastIndex-i] < priceMin {
 			priceMin = prices[lastIndex-i]
+			priceMinIndex = lastIndex - i
 		}
 		if prices[lastIndex-i] > priceMax {
 			priceMax = prices[lastIndex-i]
+			priceMaxIndex = lastIndex - i
 		}
 	}
 
 	// 判断底背离和顶背离
-	bullish = t.Macd[lastIndex] > macdMin && prices[lastIndex] < priceMin
-	bearish = t.Macd[lastIndex] < macdMax && prices[lastIndex] > priceMax
+	bullish = t.Macd[lastIndex] > macdMin && prices[lastIndex] < priceMin && macdMinIndex < priceMinIndex
+	bearish = t.Macd[lastIndex] < macdMax && prices[lastIndex] > priceMax && macdMaxIndex < priceMaxIndex
 
 	return
 }
