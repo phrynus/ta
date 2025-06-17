@@ -2,7 +2,6 @@ package ta
 
 import (
 	"fmt"
-	"math"
 )
 
 type TaStochRSI struct {
@@ -89,189 +88,13 @@ func (k *KlineDatas) StochRSI(rsiPeriod, stochPeriod, kPeriod, dPeriod int, sour
 	return CalculateStochRSI(prices, rsiPeriod, stochPeriod, kPeriod, dPeriod)
 }
 
-func (k *KlineDatas) StochRSI_(rsiPeriod, stochPeriod, kPeriod, dPeriod int, source string) (kValue, dValue float64) {
-	_k, err := k.Keep((rsiPeriod + stochPeriod) * 2)
-	if err != nil {
-		_k = *k
-	}
-	stochRsi, err := _k.StochRSI(rsiPeriod, stochPeriod, kPeriod, dPeriod, source)
-	if err != nil {
-		return 0, 0
-	}
-	return stochRsi.Value()
-}
-
 func (t *TaStochRSI) Value() (kValue, dValue float64) {
 	lastIndex := len(t.K) - 1
 	return t.K[lastIndex], t.D[lastIndex]
 }
 
-func (t *TaStochRSI) IsOverbought(threshold ...float64) bool {
-	th := 80.0
-	if len(threshold) > 0 {
-		th = threshold[0]
-	}
-	return t.K[len(t.K)-1] > th && t.D[len(t.D)-1] > th
-}
-
-func (t *TaStochRSI) IsOversold(threshold ...float64) bool {
-	th := 20.0
-	if len(threshold) > 0 {
-		th = threshold[0]
-	}
-	return t.K[len(t.K)-1] < th && t.D[len(t.D)-1] < th
-}
-
-func (t *TaStochRSI) IsGoldenCross() bool {
-	if len(t.K) < 2 || len(t.D) < 2 {
-		return false
-	}
-	lastIndex := len(t.K) - 1
-	return t.K[lastIndex-1] <= t.D[lastIndex-1] && t.K[lastIndex] > t.D[lastIndex]
-}
-
-func (t *TaStochRSI) IsDeathCross() bool {
-	if len(t.K) < 2 || len(t.D) < 2 {
-		return false
-	}
-	lastIndex := len(t.K) - 1
-	return t.K[lastIndex-1] >= t.D[lastIndex-1] && t.K[lastIndex] < t.D[lastIndex]
-}
-
-func (t *TaStochRSI) IsBullishDivergence(prices []float64) bool {
-	if len(t.K) < 20 || len(prices) < 20 {
-		return false
-	}
-	lastIndex := len(t.K) - 1
-	kLow := t.K[lastIndex]
-	priceLow := prices[lastIndex]
-	for i := 1; i < 20; i++ {
-		if t.K[lastIndex-i] < kLow {
-			kLow = t.K[lastIndex-i]
-		}
-		if prices[lastIndex-i] < priceLow {
-			priceLow = prices[lastIndex-i]
-		}
-	}
-	return t.K[lastIndex] > kLow && prices[lastIndex] < priceLow
-}
-
-func (t *TaStochRSI) IsBearishDivergence(prices []float64) bool {
-	if len(t.K) < 20 || len(prices) < 20 {
-		return false
-	}
-	lastIndex := len(t.K) - 1
-	kHigh := t.K[lastIndex]
-	priceHigh := prices[lastIndex]
-	for i := 1; i < 20; i++ {
-		if t.K[lastIndex-i] > kHigh {
-			kHigh = t.K[lastIndex-i]
-		}
-		if prices[lastIndex-i] > priceHigh {
-			priceHigh = prices[lastIndex-i]
-		}
-	}
-	return t.K[lastIndex] < kHigh && prices[lastIndex] > priceHigh
-}
-
-func (t *TaStochRSI) IsCenterCross() (up, down bool) {
-	if len(t.K) < 2 {
-		return false, false
-	}
-	lastIndex := len(t.K) - 1
-	up = t.K[lastIndex-1] <= 50 && t.K[lastIndex] > 50
-	down = t.K[lastIndex-1] >= 50 && t.K[lastIndex] < 50
-	return
-}
-
-func (t *TaStochRSI) GetTrend() int {
-	lastIndex := len(t.K) - 1
-	if t.K[lastIndex] > 80 {
-		return 1
-	} else if t.K[lastIndex] > 50 {
-		return 2
-	} else if t.K[lastIndex] < 20 {
-		return -1
-	} else if t.K[lastIndex] < 50 {
-		return -2
-	}
-	return 0
-}
-
-func (t *TaStochRSI) GetStrength() float64 {
-	lastIndex := len(t.K) - 1
-	return math.Abs(t.K[lastIndex] - 50)
-}
-
-func (t *TaStochRSI) IsStrengthening() bool {
-	if len(t.K) < 2 {
-		return false
-	}
-	lastIndex := len(t.K) - 1
-	return math.Abs(t.K[lastIndex]-50) > math.Abs(t.K[lastIndex-1]-50)
-}
-
-func (t *TaStochRSI) IsWeakening() bool {
-	if len(t.K) < 2 {
-		return false
-	}
-	lastIndex := len(t.K) - 1
-	return math.Abs(t.K[lastIndex]-50) < math.Abs(t.K[lastIndex-1]-50)
-}
-
-func (t *TaStochRSI) GetKDSpread() float64 {
-	lastIndex := len(t.K) - 1
-	return t.K[lastIndex] - t.D[lastIndex]
-}
-
-func (t *TaStochRSI) IsKDConverging() bool {
-	if len(t.K) < 2 || len(t.D) < 2 {
-		return false
-	}
-	lastIndex := len(t.K) - 1
-	currentSpread := math.Abs(t.K[lastIndex] - t.D[lastIndex])
-	previousSpread := math.Abs(t.K[lastIndex-1] - t.D[lastIndex-1])
-	return currentSpread < previousSpread
-}
-
-func (t *TaStochRSI) IsKDDiverging() bool {
-	if len(t.K) < 2 || len(t.D) < 2 {
-		return false
-	}
-	lastIndex := len(t.K) - 1
-	currentSpread := math.Abs(t.K[lastIndex] - t.D[lastIndex])
-	previousSpread := math.Abs(t.K[lastIndex-1] - t.D[lastIndex-1])
-	return currentSpread > previousSpread
-}
-
-func (t *TaStochRSI) GetMomentum() float64 {
-	if len(t.K) < 2 {
-		return 0
-	}
-	lastIndex := len(t.K) - 1
-	return t.K[lastIndex] - t.K[lastIndex-1]
-}
-
-func (t *TaStochRSI) IsDivergenceConfirmed(prices []float64, threshold float64) bool {
-	if len(t.K) < 20 || len(prices) < 20 {
-		return false
-	}
-	lastIndex := len(t.K) - 1
-	kChange := (t.K[lastIndex] - t.K[lastIndex-1]) / math.Abs(t.K[lastIndex-1]) * 100
-	priceChange := (prices[lastIndex] - prices[lastIndex-1]) / prices[lastIndex-1] * 100
-	return math.Abs(kChange-priceChange) > threshold
-}
-
-func (t *TaStochRSI) GetZonePosition() int {
-	value := t.K[len(t.K)-1]
-	if value > 80 {
-		return 1
-	} else if value > 50 {
-		return 2
-	} else if value < 20 {
-		return -1
-	} else if value < 50 {
-		return -2
-	}
-	return 0
-}
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------

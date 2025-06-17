@@ -143,26 +143,6 @@ func (k *KlineDatas) ADX(period int) (*TaADX, error) {
 	return CalculateADX(*k, period)
 }
 
-// ADX_ 计算并返回最新的ADX、+DI和-DI值
-// 参数：
-//   - period: 计算周期
-//
-// 返回值：
-//   - adx: 最新的ADX值
-//   - plusDI: 最新的+DI值
-//   - minusDI: 最新的-DI值
-func (k *KlineDatas) ADX_(period int) (adx, plusDI, minusDI float64) {
-	_k, err := k.Keep(period * 14)
-	if err != nil {
-		_k = *k
-	}
-	adxData, err := _k.ADX(period)
-	if err != nil {
-		return 0, 0, 0
-	}
-	return adxData.Value()
-}
-
 // Value 获取最新的ADX、+DI和-DI值
 // 返回值：
 //   - adx: 最新的ADX值
@@ -179,72 +159,19 @@ func (t *TaADX) Value() (adx, plusDI, minusDI float64) {
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-// IsTrendStrengthening 判断趋势是否正在增强
+// CrossOver 判断金叉、死叉
 // 返回值：
-//   - bool: 如果当前ADX值大于前一个ADX值则返回true，表示趋势正在增强
-func (t *TaADX) IsTrendStrengthening() bool {
-	if len(t.ADX) < 2 {
-		return false
-	}
-	lastIndex := len(t.ADX) - 1
-	return t.ADX[lastIndex] > t.ADX[lastIndex-1]
-}
-
-// IsTrendWeakening 判断趋势是否正在减弱
-// 返回值：
-//   - bool: 如果当前ADX值小于前一个ADX值则返回true，表示趋势正在减弱
-func (t *TaADX) IsTrendWeakening() bool {
-	if len(t.ADX) < 2 {
-		return false
-	}
-	lastIndex := len(t.ADX) - 1
-	return t.ADX[lastIndex] < t.ADX[lastIndex-1]
-}
-
-// IsBullishCrossover 判断是否出现多头交叉
-// 返回值：
-//   - bool: 如果+DI从下向上穿过-DI则返回true，表示出现多头交叉
-func (t *TaADX) IsBullishCrossover() bool {
+//   - Int: 1 表示金叉，-1 表示死叉，0 表示无交叉
+func (t *TaADX) CrossOver() int {
 	if len(t.PlusDI) < 2 || len(t.MinusDI) < 2 {
-		return false
+		return 0
 	}
 	lastIndex := len(t.PlusDI) - 1
-	return t.PlusDI[lastIndex-1] <= t.MinusDI[lastIndex-1] && t.PlusDI[lastIndex] > t.MinusDI[lastIndex]
-}
-
-// IsBearishCrossover 判断是否出现空头交叉
-// 返回值：
-//   - bool: 如果+DI从上向下穿过-DI则返回true，表示出现空头交叉
-func (t *TaADX) IsBearishCrossover() bool {
-	if len(t.PlusDI) < 2 || len(t.MinusDI) < 2 {
-		return false
+	if t.PlusDI[lastIndex-1] < t.MinusDI[lastIndex-1] && t.PlusDI[lastIndex] > t.MinusDI[lastIndex] {
+		return 1
+	} else if t.PlusDI[lastIndex-1] > t.MinusDI[lastIndex-1] && t.PlusDI[lastIndex] < t.MinusDI[lastIndex] {
+		return -1
+	} else {
+		return 0
 	}
-	lastIndex := len(t.PlusDI) - 1
-	return t.PlusDI[lastIndex-1] >= t.MinusDI[lastIndex-1] && t.PlusDI[lastIndex] < t.MinusDI[lastIndex]
-}
-
-// IsDIConverging 判断DI是否正在收敛
-// 返回值：
-//   - bool: 如果+DI和-DI之间的距离正在缩小则返回true
-func (t *TaADX) IsDIConverging() bool {
-	if len(t.PlusDI) < 2 || len(t.MinusDI) < 2 {
-		return false
-	}
-	lastIndex := len(t.PlusDI) - 1
-	currentSpread := math.Abs(t.PlusDI[lastIndex] - t.MinusDI[lastIndex])
-	previousSpread := math.Abs(t.PlusDI[lastIndex-1] - t.MinusDI[lastIndex-1])
-	return currentSpread < previousSpread
-}
-
-// IsDIDiverging 判断DI是否正在发散
-// 返回值：
-//   - bool: 如果+DI和-DI之间的距离正在增大则返回true
-func (t *TaADX) IsDIDiverging() bool {
-	if len(t.PlusDI) < 2 || len(t.MinusDI) < 2 {
-		return false
-	}
-	lastIndex := len(t.PlusDI) - 1
-	currentSpread := math.Abs(t.PlusDI[lastIndex] - t.MinusDI[lastIndex])
-	previousSpread := math.Abs(t.PlusDI[lastIndex-1] - t.MinusDI[lastIndex-1])
-	return currentSpread > previousSpread
 }

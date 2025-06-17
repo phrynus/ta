@@ -90,88 +90,12 @@ func (k *KlineDatas) SuperTrendPivotHl2(period int, multiplier float64) (*TaSupe
 	return CalculateSuperTrendPivotHl2(*k, period, multiplier)
 }
 
-func (k *KlineDatas) SuperTrendPivotHl2_(period int, multiplier float64) float64 {
-	_k, err := k.Keep(period * 2)
-	if err != nil {
-		_k = *k
-	}
-	st, err := CalculateSuperTrendPivotHl2(_k, period, multiplier)
-	if err != nil {
-		return 0
-	}
-	return st.Value()
-}
-
 func (t *TaSuperTrendPivotHl2) Value() float64 {
 	return t.Values[len(t.Values)-1]
 }
 
-func (t *TaSuperTrendPivotHl2) GetDirection() int {
-	return t.Direction[len(t.Direction)-1]
-}
-
-func (t *TaSuperTrendPivotHl2) GetBands() (upper, lower float64) {
-	lastIndex := len(t.Values) - 1
-	return t.UpperBand[lastIndex], t.LowerBand[lastIndex]
-}
-
-/* Pine
-
-indicator('SuperTrend Pivot HL2', overlay = true)
-
-
-atrPeriod = input.int(14, 'ATR周期', minval = 1)
-atrMultiplier = input.float(3.0, 'ATR乘数', minval = 0.1, step = 0.1)
-
-
-atr = ta.atr(atrPeriod)
-
-
-upperBand = hl2 + atrMultiplier * atr
-lowerBand = hl2 - atrMultiplier * atr
-
-
-var float finalUpperBand = na
-var float finalLowerBand = na
-var int trend = 0
-
-
-finalUpperBand := if upperBand < nz(finalUpperBand[1], upperBand) or close[1] > nz(finalUpperBand[1], upperBand)
-    upperBand
-else
-    nz(finalUpperBand[1], upperBand)
-
-finalLowerBand := if lowerBand > nz(finalLowerBand[1], lowerBand) or close[1] < nz(finalLowerBand[1], lowerBand)
-    lowerBand
-else
-    nz(finalLowerBand[1], lowerBand)
-
-
-trend := if trend[1] <= 0
-    close > finalUpperBand ? 1 : -1
-else
-    close < finalLowerBand ? -1 : 1
-
-
-superTrend = trend == 1 ? finalLowerBand : finalUpperBand
-
-
-upTrend = trend == 1
-downTrend = trend == -1
-
-plot(superTrend, 'SuperTrend', color = upTrend ? color.green : color.red, linewidth = 2)
-plot(finalUpperBand, 'Upper Band', color = color.new(color.gray, 50))
-plot(finalLowerBand, 'Lower Band', color = color.new(color.gray, 50))
-
-
-
-
-
-plotshape(trend != trend[1] and upTrend, 'Up Trend', style = shape.triangleup, location = location.belowbar, color = color.green, size = size.small)
-plotshape(trend != trend[1] and downTrend, 'Down Trend', style = shape.triangledown, location = location.abovebar, color = color.red, size = size.small)
-
-
-alertcondition(trend != trend[1] and upTrend, '买入信号', '价格突破上轨，趋势转多')
-alertcondition(trend != trend[1] and downTrend, '卖出信号', '价格突破下轨，趋势转空')
-
-*/
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
