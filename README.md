@@ -8,6 +8,7 @@
 
 - adx.go : ADX(平均趋向指标)
 - atr.go : ATR(平均真实波幅)
+  - Percent 计算最新的 ATR 值相对于当前价格的百分比
 - boll.go : BOLL(布林带)
 - cci.go : CCI(顺势指标)
 - cmf.go : CMF(蔡金货币流量)
