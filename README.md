@@ -1,5 +1,7 @@
 # 技术分析指标库 (Technical Analysis Library)
 
+已转到 [go-utils](https://github.com/phrynus/go-utils)
+
 这是一个用Go语言实现的技术分析指标库，提供了常用的技术分析指标计算功能。
 
 兼容`go-binance`库K线数据结构。
